@@ -1,0 +1,22 @@
+{
+  "name": "@event-recorder/server",
+  "scripts": {
+    "start": "node ./dist/",
+    "dev": "tsx watch ./src/index.ts",
+    "build": "tsc && tsc-alias",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@event-recorder/eslint-config": "workspace:^",
+    "@types/express": "^5.0.1",
+    "eslint": "^9.22.0",
+    "tsc-alias": "^1.8.15",
+    "tsx": "^4.19.3",
+    "typescript": "~5.7.2"
+  }
+}

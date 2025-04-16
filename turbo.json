@@ -1,0 +1,29 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "transit": {
+      "dependsOn": ["^transit"]
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      "cache": true
+    },
+    "lint": {
+      "cache": true
+    },
+    "lint:fix": {
+      "cache": false
+    },
+    "typecheck": {
+      "dependsOn": ["^transit"],
+      "cache": true
+    },
+    "test": {
+      "cache": true
+    },
+    "test:coverage": {
+      "cache": false
+    }
+  }
+}
