@@ -4,6 +4,10 @@
     "transit": {
       "dependsOn": ["^transit"]
     },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"],
