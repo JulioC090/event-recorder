@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
+import { EventRecorderProvider } from './contexts/EventRecorderProvider.tsx';
 import './index.css';
 import Home from './pages/Home.tsx';
 import Recorder from './pages/Recorder.tsx';
@@ -11,7 +12,14 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/recorder/:url" element={<Recorder />} />
+        <Route
+          path="/recorder/:url"
+          element={
+            <EventRecorderProvider>
+              <Recorder />
+            </EventRecorderProvider>
+          }
+        />
 
         {import.meta.env.MODE === 'development' && (
           <Route path="/test" element={<Test />} />
