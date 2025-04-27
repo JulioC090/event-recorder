@@ -4,6 +4,30 @@ import { Readable } from 'node:stream';
 const app = express();
 const PORT = 3000;
 const HOST = 'localhost';
+const BASE_URL = `http://${HOST}:${PORT}`;
+
+const injectClientScripts = (targetURL: string) => `
+  <base href="${targetURL}">
+  <script>
+    console.log('Rewriting fetch and XMLHttpRequest');
+    
+    const originalFetch = window.fetch;
+    window.fetch = async (input, init) => {
+      let url = typeof input === 'string' ? input : input.url;
+      const proxyUrl = '${BASE_URL}/' + url;
+      input = typeof input === 'string' ? proxyUrl : new Request(proxyUrl, input);
+      return originalFetch(input, init);
+    };
+
+    const originalOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function (method, url, async, user, password) {
+      if (!url.startsWith("http") && !url.startsWith("//")) {
+        url = '${BASE_URL}/' + url;
+      }
+      return originalOpen.call(this, method, url, async, user, password);
+    };
+  </script>
+`;
 
 app.get('/{*url}', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -55,37 +79,7 @@ app.get('/{*url}', async (req: Request, res: Response): Promise<void> => {
 
       body = body.replace(
         /<head[^>]*>/i,
-        (match) => `${match}<script>
-          console.log('Reescrevendo fetch')
-          const originalFetch = window.fetch;
-          window.fetch = async (input, init) => {
-            let url = typeof input === 'string' ? input : input.url;
-            console.log(url);
-  
-            const proxyUrl = \`http://localhost:3000/\${url}\`;
-  
-            if (typeof input !== 'string') {
-              input = new Request(proxyUrl, input);
-            } else {
-              input = proxyUrl;
-            }
-  
-            return originalFetch(input, init);
-          }
-
-          console.log('Reescrevendo XMLHttpRequest');
-
-          const originalOpen = XMLHttpRequest.prototype.open;
-          XMLHttpRequest.prototype.open = function (method, url, async, user, password) {
-            // Verificando se a URL precisa ser reescrita
-            if (!url.startsWith("http") && !url.startsWith("//")) {
-              url = \`http://\${HOST}:\${PORT}/\${url}\`;
-            }
-
-            // Chama o método original com a URL reescrita
-            return originalOpen.call(this, method, url, async, user, password);
-          };
-        </script>`,
+        (match) => `${match}${injectClientScripts(targetURL)}`,
       );
       res.send(body);
       return;
