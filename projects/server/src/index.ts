@@ -29,6 +29,39 @@ const injectClientScripts = (targetURL: string) => `
   </script>
 `;
 
+function rewriteHTML(html: string, targetURL: string) {
+  return html
+    .replace(/(src|href)=["'](http[^"']*)["']/g, (match, attr, path) => {
+      return `${attr}="http://${HOST}:${PORT}/${path}"`;
+    })
+    .replace(
+      /(<[^>]+\s(?:src|href|action)=["'])(\/[^"'>]+)/gi,
+      (_, prefix, path) => {
+        const fullUrl = new URL(path, targetURL).toString();
+        return `${prefix}http://${HOST}:${PORT}/${fullUrl}`;
+      },
+    )
+    .replace(
+      /(<[^>]+\s(?:src|href|action)=["'])(?!https?:\/\/|\/\/|data:|\/)([^"'>]+)/gi,
+      (_, prefix, path) => {
+        const fullUrl = new URL(path, targetURL).toString();
+        return `${prefix}http://${HOST}:${PORT}/${fullUrl}`;
+      },
+    )
+    .replace(/<head[^>]*>/i, (match) => `${match}<base href="${targetURL}">`)
+    .replace(
+      /<head[^>]*>/i,
+      (match) => `${match}${injectClientScripts(targetURL)}`,
+    );
+}
+
+function rewriteCSS(css: string, targetURL: string) {
+  return css.replace(/url\((['"]?\/[^"')]*['"]?)\)/g, (_, path) => {
+    const fullUrl = new URL(path, targetURL).toString();
+    return `url("${BASE_URL}/${fullUrl}")`;
+  });
+}
+
 app.get('/{*url}', async (req: Request, res: Response): Promise<void> => {
   try {
     const targetURL = req.url.slice(1);
@@ -46,75 +79,30 @@ app.get('/{*url}', async (req: Request, res: Response): Promise<void> => {
     res.header('Access-Control-Allow-Headers', '*');
     res.status(response.status);
 
-    if (response.headers.get('content-type')?.includes('text/html')) {
-      let body = await response.text();
+    const contentType = response.headers.get('content-type') || '';
 
-      body = body.replace(
-        /(src|href)=["'](http[^"']*)["']/g,
-        (match, attr, path) => {
-          return `${attr}="http://${HOST}:${PORT}/${path}"`;
-        },
-      );
-
-      body = body.replace(
-        /(<[^>]+\s(?:src|href|action)=["'])(\/[^"'>]+)/gi,
-        (_, prefix, path) => {
-          const fullUrl = new URL(path, targetURL).toString();
-          return `${prefix}http://${HOST}:${PORT}/${fullUrl}`;
-        },
-      );
-
-      body = body.replace(
-        /(<[^>]+\s(?:src|href|action)=["'])(?!https?:\/\/|\/\/|data:|\/)([^"'>]+)/gi,
-        (_, prefix, path) => {
-          const fullUrl = new URL(path, targetURL).toString();
-          return `${prefix}http://${HOST}:${PORT}/${fullUrl}`;
-        },
-      );
-
-      body = body.replace(
-        /<head[^>]*>/i,
-        (match) => `${match}<base href="${targetURL}">`,
-      );
-
-      body = body.replace(
-        /<head[^>]*>/i,
-        (match) => `${match}${injectClientScripts(targetURL)}`,
-      );
-      res.send(body);
+    if (contentType.includes('text/html')) {
+      const body = await response.text();
+      res.send(rewriteHTML(body, targetURL));
       return;
     }
 
-    if (response.headers.get('content-type')?.includes('text/css')) {
-      let body = await response.text();
-
-      body = body.replace(/url\((['"]?\/[^"')]*['"]?)\)/g, (_, path) => {
-        const fullUrl = new URL(path, targetURL).toString();
-        return `url("http://${HOST}:${PORT}/${fullUrl}")`;
-      });
-
-      res.send(body);
+    if (contentType.includes('text/css')) {
+      const body = await response.text();
+      res.send(rewriteCSS(body, targetURL));
       return;
     }
 
-    if (
-      response.headers.get('content-type')?.includes('image') &&
-      response.body
-    ) {
-      Readable.from(response.body).pipe(res);
-      return;
-    }
+    if (contentType.includes('image') || contentType.includes('font')) {
+      if (contentType.includes('font')) {
+        res.setHeader('connection', '');
+      }
 
-    if (
-      response.headers.get('content-type')?.includes('font') &&
-      response.body
-    ) {
-      res.setHeader('connection', '');
-      Readable.from(response.body).pipe(res);
-      return;
+      if (response.body) {
+        Readable.from(response.body).pipe(res);
+        return;
+      }
     }
-
-    console.log(response.headers.get('content-type'));
 
     const body = await response.text();
     res.send(body);
@@ -124,5 +112,5 @@ app.get('/{*url}', async (req: Request, res: Response): Promise<void> => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🟢 Servidor rodando em http://localhost:${PORT}`);
+  console.log(`🟢 Servidor rodando em ${BASE_URL}`);
 });
