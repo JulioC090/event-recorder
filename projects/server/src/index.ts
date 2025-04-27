@@ -6,8 +6,7 @@ const PORT = 3000;
 const HOST = 'localhost';
 const BASE_URL = `http://${HOST}:${PORT}`;
 
-const injectClientScripts = (targetURL: string) => `
-  <base href="${targetURL}">
+const injectClientScripts = () => `
   <script>
     console.log('Rewriting fetch and XMLHttpRequest');
     
@@ -49,10 +48,7 @@ function rewriteHTML(html: string, targetURL: string) {
       },
     )
     .replace(/<head[^>]*>/i, (match) => `${match}<base href="${targetURL}">`)
-    .replace(
-      /<head[^>]*>/i,
-      (match) => `${match}${injectClientScripts(targetURL)}`,
-    );
+    .replace(/<head[^>]*>/i, (match) => `${match}${injectClientScripts()}`);
 }
 
 function rewriteCSS(css: string, targetURL: string) {
