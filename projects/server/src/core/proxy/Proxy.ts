@@ -1,62 +1,44 @@
-import { BASE_URL, HOST, PORT } from '@/config/serverConfig';
+import CSSProxyHandle from '@/core/proxy/ProxyHandles/CSSProxyHandle';
+import FontProxyHandle from '@/core/proxy/ProxyHandles/FontProxyHandle';
+import HTMLProxyHandle from '@/core/proxy/ProxyHandles/HTMLProxyHandle';
+import ImageProxyHandle from '@/core/proxy/ProxyHandles/ImageProxyHandle';
 import IProxy, { IProxyResult } from '@/types/IProxy';
+import { IProxyHandle } from '@/types/IProxyHandle';
 import { Readable } from 'node:stream';
 
-const injectClientScripts = () => `
-  <script>
-    console.log('Rewriting fetch and XMLHttpRequest');
-    
-    const originalFetch = window.fetch;
-    window.fetch = async (input, init) => {
-      let url = typeof input === 'string' ? input : input.url;
-      const proxyUrl = '${BASE_URL}/' + url;
-      input = typeof input === 'string' ? proxyUrl : new Request(proxyUrl, input);
-      return originalFetch(input, init);
-    };
-
-    const originalOpen = XMLHttpRequest.prototype.open;
-    XMLHttpRequest.prototype.open = function (method, url, async, user, password) {
-      if (!url.startsWith("http") && !url.startsWith("//")) {
-        url = '${BASE_URL}/' + url;
-      }
-      return originalOpen.call(this, method, url, async, user, password);
-    };
-  </script>
-`;
-
-function rewriteHTML(html: string, targetURL: string) {
-  return html
-    .replace(/(src|href)=["'](http[^"']*)["']/g, (match, attr, path) => {
-      return `${attr}="http://${HOST}:${PORT}/${path}"`;
-    })
-    .replace(
-      /(<[^>]+\s(?:src|href|action)=["'])(\/[^"'>]+)/gi,
-      (_, prefix, path) => {
-        const fullUrl = new URL(path, targetURL).toString();
-        return `${prefix}http://${HOST}:${PORT}/${fullUrl}`;
-      },
-    )
-    .replace(
-      /(<[^>]+\s(?:src|href|action)=["'])(?!https?:\/\/|\/\/|data:|\/)([^"'>]+)/gi,
-      (_, prefix, path) => {
-        const fullUrl = new URL(path, targetURL).toString();
-        return `${prefix}http://${HOST}:${PORT}/${fullUrl}`;
-      },
-    )
-    .replace(/<head[^>]*>/i, (match) => `${match}<base href="${targetURL}">`)
-    .replace(/<head[^>]*>/i, (match) => `${match}${injectClientScripts()}`);
-}
-
-function rewriteCSS(css: string, targetURL: string) {
-  return css.replace(/url\((['"]?\/[^"')]*['"]?)\)/g, (_, path) => {
-    const fullUrl = new URL(path, targetURL).toString();
-    return `url("${BASE_URL}/${fullUrl}")`;
-  });
-}
+const handlers: Array<{
+  match: (type: string) => boolean;
+  execute: IProxyHandle;
+}> = [
+  {
+    match: (type: string) => type.includes('text/html'),
+    execute: HTMLProxyHandle,
+  },
+  {
+    match: (type: string) => type.includes('text/css'),
+    execute: CSSProxyHandle,
+  },
+  {
+    match: (type: string) => type.includes('image'),
+    execute: ImageProxyHandle,
+  },
+  {
+    match: (type: string) => type.includes('font'),
+    execute: FontProxyHandle,
+  },
+];
 
 export default class Proxy implements IProxy {
+  private handles = new Map<string, IProxyHandle>();
+
+  setHandle(contentType: string, handle: IProxyHandle): void {
+    this.handles.set(contentType, handle);
+  }
+
   async execute(destinationUrl: string): Promise<IProxyResult> {
     const response = await fetch(destinationUrl);
+
+    const contentType = response.headers.get('content-type') || '';
 
     const headers: { [key: string]: string } = {};
     response.headers.forEach((value, key) => {
@@ -64,40 +46,22 @@ export default class Proxy implements IProxy {
       headers[key] = value;
     });
 
-    const contentType = response.headers.get('content-type') || '';
+    let body: string | undefined;
+    let stream: Readable | undefined;
 
-    if (contentType.includes('text/html')) {
-      const body = await response.text();
-      return {
-        headers,
-        body: rewriteHTML(body, destinationUrl),
-        status: response.status,
-      };
-    }
+    for (const handle of handlers) {
+      if (handle.match(contentType)) {
+        const res = await handle.execute(headers, response, destinationUrl);
 
-    if (contentType.includes('text/css')) {
-      const body = await response.text();
-      return {
-        headers,
-        body: rewriteCSS(body, destinationUrl),
-        status: response.status,
-      };
-    }
-
-    if (contentType.includes('image') || contentType.includes('font')) {
-      if (contentType.includes('font')) {
-        headers['connection'] = '';
-      }
-
-      if (response.body) {
-        return {
-          headers,
-          stream: Readable.from(response.body),
-          status: response.status,
-        };
+        body = res.body;
+        stream = res.stream;
       }
     }
 
-    return { headers, body: await response.text(), status: response.status };
+    // Default fallback
+    if (!body && !stream)
+      return { headers, body: await response.text(), status: response.status };
+
+    return { headers, body, stream, status: response.status };
   }
 }
