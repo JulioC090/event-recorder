@@ -102,6 +102,9 @@ importers:
 
   projects/server:
     dependencies:
+      '@event-recorder/client':
+        specifier: workspace:^
+        version: link:../client
       express:
         specifier: ^5.1.0
         version: 5.1.0

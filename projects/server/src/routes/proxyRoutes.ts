@@ -7,6 +7,6 @@ const proxyController = new ProxyController(proxy);
 
 const router = Router();
 
-router.get('/{*url}', proxyController.handle.bind(proxyController));
+router.get('/http{*url}', proxyController.handle.bind(proxyController));
 
 export default router;
