@@ -1,6 +1,6 @@
 import { BASE_URL, PORT } from '@/config/serverConfig';
 import proxyRoutes from '@/routes/proxyRoutes';
-import { staticPath } from '@event-recorder/client';
+import { staticPath } from '@event-recorder/static';
 import express from 'express';
 import path from 'node:path';
 

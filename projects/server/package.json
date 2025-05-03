@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit -p ."
   },
   "dependencies": {
-    "@event-recorder/client": "workspace:^",
+    "@event-recorder/static": "workspace:^",
     "express": "^5.1.0"
   },
   "devDependencies": {
@@ -20,5 +20,5 @@
     "tsx": "^4.19.3",
     "typescript": "~5.7.2"
   },
-  "bundleDependencies": ["@event-recorder/client"]
+  "bundleDependencies": ["@event-recorder/static"]
 }
