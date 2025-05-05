@@ -4,6 +4,7 @@ import { useParams } from 'react-router';
 import IconButton from '../components/IconButton';
 import PlayButton from '../components/PlayButton';
 import { EventRecorderContext } from '../contexts/EventRecorderContext';
+import resolveIFrameURL from '../utils/resolveIFrameURL';
 
 export default function Recorder() {
   const { url } = useParams();
@@ -22,7 +23,11 @@ export default function Recorder() {
 
   return (
     <>
-      <iframe ref={iframeRef} className="h-screen w-full" src={url} />
+      <iframe
+        ref={iframeRef}
+        className="h-screen w-full"
+        src={resolveIFrameURL(url)}
+      />
       <div className="flex gap-2 p-2 absolute bottom-4 right-4 bg-background rounded">
         <PlayButton onClick={toggleCapturing} isPlaying={isCapturing} />
         <IconButton onClick={clearCapturedEvents} icon={<Broom size={24} />} />

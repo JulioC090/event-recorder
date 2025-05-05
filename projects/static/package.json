@@ -1,0 +1,35 @@
+{
+  "name": "@event-recorder/static",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/index.js",
+    "public",
+    "!public/.gitkeep"
+  ],
+  "scripts": {
+    "dev": "tsx watch ./src/index.ts",
+    "build": "tsup --format cjs,esm && pnpm copy-client",
+    "copy-client": "cpx ./node_modules/@event-recorder/client/dist/**/* ./public",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "devDependencies": {
+    "@event-recorder/client": "workspace:^",
+    "@event-recorder/eslint-config": "workspace:^",
+    "@types/node": "^22.15.3",
+    "cpx": "^1.5.0",
+    "eslint": "^9.22.0",
+    "tsc-alias": "^1.8.15",
+    "tsx": "^4.19.3",
+    "typescript": "~5.7.2"
+  }
+}

@@ -1,12 +1,19 @@
-import express, { Request, Response } from 'express';
+import { BASE_URL, PORT } from '@/config/serverConfig';
+import proxyRoutes from '@/routes/proxyRoutes';
+import { staticPath } from '@event-recorder/static';
+import express from 'express';
+import path from 'node:path';
 
 const app = express();
-const PORT = 3000;
 
-app.get('/', async (req: Request, res: Response): Promise<void> => {
-  res.status(200).send('hello');
+app.use(express.static(staticPath));
+
+app.use(proxyRoutes);
+
+app.get('/{*path}', (req, res) => {
+  res.sendFile(path.join(staticPath, 'index.html'));
 });
 
 app.listen(PORT, () => {
-  console.log(`🟢 Servidor rodando em http://localhost:${PORT}`);
+  console.log(`🟢 Servidor rodando em ${BASE_URL}`);
 });
