@@ -3,6 +3,7 @@ import { useContext, useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
 import IconButton from '../components/IconButton';
 import PlayButton from '../components/PlayButton';
+import { ConfigContext } from '../contexts/ConfigContext';
 import { EventRecorderContext } from '../contexts/EventRecorderContext';
 import resolveIFrameURL from '../utils/resolveIFrameURL';
 
@@ -17,6 +18,8 @@ export default function Recorder() {
     initializeEventCapture,
   } = useContext(EventRecorderContext);
 
+  const { port } = useContext(ConfigContext);
+
   useEffect(() => {
     return initializeEventCapture(iframeRef);
   }, [initializeEventCapture, iframeRef]);
@@ -26,7 +29,7 @@ export default function Recorder() {
       <iframe
         ref={iframeRef}
         className="h-screen w-full"
-        src={resolveIFrameURL(url)}
+        src={resolveIFrameURL(port.toString(), url)}
       />
       <div className="flex gap-2 p-2 absolute bottom-4 right-4 bg-background rounded">
         <PlayButton onClick={toggleCapturing} isPlaying={isCapturing} />
