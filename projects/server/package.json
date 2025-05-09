@@ -1,9 +1,22 @@
 {
   "name": "@event-recorder/server",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./dist/server.d.ts",
+      "import": "./dist/server.mjs",
+      "require": "./dist/server.js",
+      "default": "./dist/server.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!dist/index*"
+  ],
   "scripts": {
     "start": "node ./dist/",
     "dev": "tsx watch ./src/index.ts",
-    "build": "tsc && tsc-alias",
+    "build": "tsup --format cjs,esm",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit -p ."
@@ -15,10 +28,13 @@
   "devDependencies": {
     "@event-recorder/eslint-config": "workspace:^",
     "@types/express": "^5.0.1",
+    "@types/express-serve-static-core": "^5.0.6",
     "eslint": "^9.22.0",
     "tsc-alias": "^1.8.15",
     "tsx": "^4.19.3",
     "typescript": "~5.7.2"
   },
-  "bundleDependencies": ["@event-recorder/static"]
+  "bundleDependencies": [
+    "@event-recorder/static"
+  ]
 }
