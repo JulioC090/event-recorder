@@ -1,4 +1,4 @@
-import proxyRoutes from '@/routes/proxyRoutes';
+import proxyRoutesSetup from '@/routes/proxyRoutes';
 import { staticPath } from '@event-recorder/static';
 import express from 'express';
 import path from 'node:path';
@@ -18,7 +18,7 @@ export default class Server {
   private setup() {
     this.app.use(express.static(staticPath));
 
-    this.app.use(proxyRoutes);
+    this.app.use(proxyRoutesSetup(`http://localhost:${this.options.port}`));
 
     this.app.get('/{*path}', (req, res) => {
       res.sendFile(path.join(staticPath, 'index.html'));
