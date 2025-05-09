@@ -6,33 +6,16 @@ import IProxy, { IProxyResult } from '@/types/IProxy';
 import { IProxyHandle } from '@/types/IProxyHandle';
 import { Readable } from 'node:stream';
 
-const handlers: Array<{
-  match: (type: string) => boolean;
-  execute: IProxyHandle;
-}> = [
-  {
-    match: (type: string) => type.includes('text/html'),
-    execute: HTMLProxyHandle,
-  },
-  {
-    match: (type: string) => type.includes('text/css'),
-    execute: CSSProxyHandle,
-  },
-  {
-    match: (type: string) => type.includes('image'),
-    execute: ImageProxyHandle,
-  },
-  {
-    match: (type: string) => type.includes('font'),
-    execute: FontProxyHandle,
-  },
-];
-
 export default class Proxy implements IProxy {
-  private handles = new Map<string, IProxyHandle>();
+  private handlers: Array<IProxyHandle>;
 
-  setHandle(contentType: string, handle: IProxyHandle): void {
-    this.handles.set(contentType, handle);
+  constructor(baseUrl: string) {
+    this.handlers = [
+      new HTMLProxyHandle(baseUrl),
+      new CSSProxyHandle(baseUrl),
+      new ImageProxyHandle(),
+      new FontProxyHandle(),
+    ];
   }
 
   async execute(destinationUrl: string): Promise<IProxyResult> {
@@ -49,7 +32,7 @@ export default class Proxy implements IProxy {
     let body: string | undefined;
     let stream: Readable | undefined;
 
-    for (const handle of handlers) {
+    for (const handle of this.handlers) {
       if (handle.match(contentType)) {
         const res = await handle.execute(headers, response, destinationUrl);
 
