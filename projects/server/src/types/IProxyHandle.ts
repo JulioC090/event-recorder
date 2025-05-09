@@ -5,8 +5,11 @@ export type IProxyHandleResult = {
   stream?: Readable;
 };
 
-export type IProxyHandle = (
-  headers: { [key: string]: string },
-  response: Response,
-  targetURL: string,
-) => Promise<IProxyHandleResult>;
+export interface IProxyHandle {
+  match(type: string): boolean;
+  execute(
+    headers: { [key: string]: string },
+    response: Response,
+    targetURL: string,
+  ): Promise<IProxyHandleResult>;
+}

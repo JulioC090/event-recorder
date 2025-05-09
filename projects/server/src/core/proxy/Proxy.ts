@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/config/serverConfig';
 import CSSProxyHandle from '@/core/proxy/ProxyHandles/CSSProxyHandle';
 import FontProxyHandle from '@/core/proxy/ProxyHandles/FontProxyHandle';
 import HTMLProxyHandle from '@/core/proxy/ProxyHandles/HTMLProxyHandle';
@@ -6,35 +7,14 @@ import IProxy, { IProxyResult } from '@/types/IProxy';
 import { IProxyHandle } from '@/types/IProxyHandle';
 import { Readable } from 'node:stream';
 
-const handlers: Array<{
-  match: (type: string) => boolean;
-  execute: IProxyHandle;
-}> = [
-  {
-    match: (type: string) => type.includes('text/html'),
-    execute: HTMLProxyHandle,
-  },
-  {
-    match: (type: string) => type.includes('text/css'),
-    execute: CSSProxyHandle,
-  },
-  {
-    match: (type: string) => type.includes('image'),
-    execute: ImageProxyHandle,
-  },
-  {
-    match: (type: string) => type.includes('font'),
-    execute: FontProxyHandle,
-  },
+const handlers: Array<IProxyHandle> = [
+  new HTMLProxyHandle(BASE_URL),
+  new CSSProxyHandle(BASE_URL),
+  new ImageProxyHandle(),
+  new FontProxyHandle(),
 ];
 
 export default class Proxy implements IProxy {
-  private handles = new Map<string, IProxyHandle>();
-
-  setHandle(contentType: string, handle: IProxyHandle): void {
-    this.handles.set(contentType, handle);
-  }
-
   async execute(destinationUrl: string): Promise<IProxyResult> {
     const response = await fetch(destinationUrl);
 

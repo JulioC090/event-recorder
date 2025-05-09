@@ -1,14 +1,21 @@
+import { IProxyHandle, IProxyHandleResult } from '@/types/IProxyHandle';
 import { Readable } from 'node:stream';
 
-export default async function FontProxyHandle(
-  headers: { [key: string]: string },
-  response: Response,
-) {
-  headers['connection'] = '';
+export default class FontProxyHandle implements IProxyHandle {
+  public match(type: string): boolean {
+    return type.includes('font');
+  }
 
-  if (!response.body) return {};
+  public async execute(
+    headers: { [key: string]: string },
+    response: Response,
+  ): Promise<IProxyHandleResult> {
+    headers['connection'] = '';
 
-  return {
-    stream: Readable.from(response.body),
-  };
+    if (!response.body) return {};
+
+    return {
+      stream: Readable.from(response.body),
+    };
+  }
 }
