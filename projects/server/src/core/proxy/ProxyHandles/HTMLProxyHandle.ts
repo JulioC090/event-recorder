@@ -1,14 +1,14 @@
 import { BASE_URL } from '@/config/serverConfig';
 import { IProxyHandleResult } from '@/types/IProxyHandle';
 
-const injectClientScripts = () => `
+const injectClientScripts = (baseURL: string) => `
   <script>
     console.log('Rewriting fetch and XMLHttpRequest');
     
     const originalFetch = window.fetch;
     window.fetch = async (input, init) => {
       let url = typeof input === 'string' ? input : input.url;
-      const proxyUrl = '${BASE_URL}/' + url;
+      const proxyUrl = '${baseURL}/' + url;
       input = typeof input === 'string' ? proxyUrl : new Request(proxyUrl, input);
       return originalFetch(input, init);
     };
@@ -16,7 +16,7 @@ const injectClientScripts = () => `
     const originalOpen = XMLHttpRequest.prototype.open;
     XMLHttpRequest.prototype.open = function (method, url, async, user, password) {
       if (!url.startsWith("http") && !url.startsWith("//")) {
-        url = '${BASE_URL}/' + url;
+        url = '${baseURL}/' + url;
       }
       return originalOpen.call(this, method, url, async, user, password);
     };
@@ -57,7 +57,10 @@ export default async function HTMLProxyHandle(
     // Injects a <base> tag inside the <head> to help resolve relative paths correctly in the browser.
     .replace(/<head[^>]*>/i, (match) => `${match}<base href="${targetURL}">`)
     // Injects your client-side scripts (probably for rewriting or monitoring) after the <head> tag.
-    .replace(/<head[^>]*>/i, (match) => `${match}${injectClientScripts()}`);
+    .replace(
+      /<head[^>]*>/i,
+      (match) => `${match}${injectClientScripts(BASE_URL)}`,
+    );
 
   return { body: html };
 }
