@@ -24,10 +24,8 @@
   "devDependencies": {
     "@event-recorder/eslint-config": "workspace:^",
     "@types/node": "^22.15.3",
+    "cpx": "^1.5.0",
     "eslint": "^9.22.0",
     "typescript": "~5.7.2"
-  },
-  "bundleDependencies": [
-    "@event-recorder/server"
-  ]
+  }
 }
