@@ -1,0 +1,33 @@
+{
+  "name": "@event-recorder/cli",
+  "version": "0.0.1",
+  "bin": {
+    "evtrec": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "node ./dist/",
+    "dev": "tsx watch ./src/index.ts",
+    "build": "tsup",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@commander-js/extra-typings": "^13.1.0",
+    "@event-recorder/server": "workspace:^",
+    "chalk": "^4",
+    "commander": "^13.1.0"
+  },
+  "devDependencies": {
+    "@event-recorder/eslint-config": "workspace:^",
+    "@types/node": "^22.15.3",
+    "eslint": "^9.22.0",
+    "typescript": "~5.7.2"
+  },
+  "bundleDependencies": [
+    "@event-recorder/server"
+  ]
+}

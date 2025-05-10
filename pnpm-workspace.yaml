@@ -1,3 +1,6 @@
 packages:
-  - "projects/*"
-  - "packages/*"
+  - projects/*
+  - packages/*
+
+overrides:
+  '@event-recorder/cli': link:projects/cli
