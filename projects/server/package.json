@@ -1,5 +1,6 @@
 {
   "name": "@event-recorder/server",
+  "version": "0.0.1",
   "private": true,
   "exports": {
     ".": {
@@ -22,10 +23,10 @@
     "typecheck": "tsc --noEmit -p ."
   },
   "dependencies": {
-    "@event-recorder/static": "workspace:^",
     "express": "^5.1.0"
   },
   "devDependencies": {
+    "@event-recorder/static": "workspace:^",
     "@event-recorder/eslint-config": "workspace:^",
     "@types/express": "^5.0.1",
     "@types/express-serve-static-core": "^5.0.6",

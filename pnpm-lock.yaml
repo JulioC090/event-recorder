@@ -69,9 +69,6 @@ importers:
       '@commander-js/extra-typings':
         specifier: ^13.1.0
         version: 13.1.0(commander@13.1.0)
-      '@event-recorder/server':
-        specifier: workspace:^
-        version: link:../server
       chalk:
         specifier: ^4
         version: 4.1.2
@@ -82,6 +79,9 @@ importers:
       '@event-recorder/eslint-config':
         specifier: workspace:^
         version: link:../../packages/eslint-config
+      '@event-recorder/server':
+        specifier: workspace:^
+        version: link:../server
       '@types/node':
         specifier: ^22.15.3
         version: 22.15.3
@@ -143,9 +143,6 @@ importers:
 
   projects/server:
     dependencies:
-      '@event-recorder/static':
-        specifier: workspace:^
-        version: link:../static
       express:
         specifier: ^5.1.0
         version: 5.1.0
@@ -153,6 +150,9 @@ importers:
       '@event-recorder/eslint-config':
         specifier: workspace:^
         version: link:../../packages/eslint-config
+      '@event-recorder/static':
+        specifier: workspace:^
+        version: link:../static
       '@types/express':
         specifier: ^5.0.1
         version: 5.0.1
