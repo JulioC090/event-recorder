@@ -18,7 +18,7 @@
   "scripts": {
     "dev": "tsx watch ./src/index.ts",
     "build": "tsup --format cjs,esm && pnpm copy-client",
-    "copy-client": "cpx ./node_modules/@event-recorder/client/dist/**/* ./public",
+    "copy-client": "cpx 'node_modules/@event-recorder/client/dist/**/*' ./public",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit -p ."

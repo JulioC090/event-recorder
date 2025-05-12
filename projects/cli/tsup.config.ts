@@ -10,5 +10,5 @@ export default defineConfig({
   shims: true,
   dts: true,
   onSuccess:
-    'cpx node_modules/@event-recorder/server/dist/public/**/* dist/public',
+    'cpx "node_modules/@event-recorder/server/dist/public/**/*" dist/public',
 });

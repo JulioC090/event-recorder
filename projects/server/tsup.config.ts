@@ -10,5 +10,5 @@ export default defineConfig({
   minify: true,
   shims: true,
   dts: true,
-  onSuccess: `cpx ${staticPath}/**/* dist/public`,
+  onSuccess: `cpx "${staticPath}/**/*" dist/public`,
 });
