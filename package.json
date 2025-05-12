@@ -6,8 +6,15 @@
   "scripts": {
     "prepare": "husky",
     "precommit": "turbo run precommit",
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --parallel",
+    "dev:cli": "turbo run dev --filter=@event-recorder/cli",
+    "dev:server": "turbo run dev --filter=@event-recorder/server",
+    "dev:client": "turbo run dev --filter=@event-recorder/client",
     "build": "turbo run build",
+    "build:cli": "turbo run build --filter=@event-recorder/cli",
+    "build:server": "turbo run build --filter=@event-recorder/server",
+    "build:static": "turbo run build --filter=@event-recorder/static",
+    "build:client": "turbo run build --filter=@event-recorder/client",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix --filter=[HEAD]",
     "test": "turbo run test",
@@ -22,7 +29,11 @@
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
     "husky": "^9.0.11",
+    "tsup": "^8.4.0",
     "turbo": "^2.5.0"
   },
-  "packageManager": "pnpm@10.5.2"
+  "packageManager": "pnpm@10.9.0",
+  "dependencies": {
+    "@event-recorder/cli": "link:projects/cli"
+  }
 }
