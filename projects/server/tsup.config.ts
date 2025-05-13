@@ -1,4 +1,3 @@
-import { staticPath } from '@event-recorder/static';
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
@@ -10,5 +9,4 @@ export default defineConfig({
   minify: true,
   shims: true,
   dts: true,
-  onSuccess: `cpx "${staticPath}/**/*" dist/public`,
 });

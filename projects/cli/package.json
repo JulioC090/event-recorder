@@ -11,6 +11,7 @@
     "start": "node ./dist/",
     "dev": "tsx watch ./src/index.ts",
     "build": "tsup",
+    "postbuild": "cpx \"node_modules/@event-recorder/server/dist/public/**/*\" \"./dist/public\"",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit -p ."

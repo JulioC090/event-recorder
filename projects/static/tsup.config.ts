@@ -8,5 +8,4 @@ export default defineConfig({
   minify: true,
   shims: true,
   dts: true,
-  onSuccess: 'cpx "public/**/*" dist/public',
 });

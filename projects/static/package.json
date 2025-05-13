@@ -11,14 +11,12 @@
     }
   },
   "files": [
-    "dist/index.js",
-    "public",
-    "!public/.gitkeep"
+    "dist/*"
   ],
   "scripts": {
     "dev": "tsx watch ./src/index.ts",
-    "build": "tsup --format cjs,esm && pnpm copy-client",
-    "copy-client": "cpx 'node_modules/@event-recorder/client/dist/**/*' ./public",
+    "build": "tsup --format cjs,esm",
+    "postbuild": "cpx \"./node_modules/@event-recorder/client/dist/**/*\" \"./dist/public\"",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit -p ."
