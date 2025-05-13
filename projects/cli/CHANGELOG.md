@@ -1,5 +1,11 @@
 # @event-recorder/cli
 
+## 1.0.1
+
+### Patch Changes
+
+- [`5d5918b`](https://github.com/JulioC090/event-recorder/commit/5d5918bc8f21411c93e254da06f98a6819fafc4e) Thanks [@JulioC090](https://github.com/JulioC090)! - build: fix copy public script
+
 ## 1.0.0
 
 ### Major Changes
