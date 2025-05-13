@@ -33,7 +33,6 @@
     "@types/express-serve-static-core": "^5.0.6",
     "cpx": "^1.5.0",
     "eslint": "^9.22.0",
-    "tsc-alias": "^1.8.15",
     "tsx": "^4.19.3",
     "typescript": "~5.7.2"
   }
