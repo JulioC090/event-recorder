@@ -23,7 +23,7 @@
     "typecheck": "turbo run typecheck",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "publish-packages": "turbo run typecheck build test && changeset publish"
+    "publish-packages": "turbo run build && turbo run typecheck test && changeset publish"
   },
   "keywords": [],
   "author": "",
